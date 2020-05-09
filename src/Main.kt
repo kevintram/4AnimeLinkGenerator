@@ -10,7 +10,10 @@ fun main(args: Array<String>) {
     print("Enter Number of Episodes: ")
     val episodeCount = readLine()!!.toInt()
 
+    print("Sub or Dub?")
+    val vocalTrack: String = readLine()!!
+
     repeat(episodeCount) {
-        println("https://storage.googleapis.com/auengine.appspot.com/$showID/sub/${episode++}_${episodeID++}.mp4")
+        println("https://storage.googleapis.com/auengine.appspot.com/$showID/$vocalTrack/${episode++}_${episodeID++}.mp4")
     }
 }
