@@ -1,4 +1,7 @@
 fun main(args: Array<String>) {
+
+    println()
+
     var episode = 1
 
     print("Enter First Episode ID: ")
@@ -10,10 +13,16 @@ fun main(args: Array<String>) {
     print("Enter Number of Episodes: ")
     val episodeCount = readLine()!!.toInt()
 
-    print("Sub or Dub?")
+    print("Sub or Dub? ")
     val vocalTrack: String = readLine()!!
+
+    println()
+
+    println("----- LINKS -----")
 
     repeat(episodeCount) {
         println("https://storage.googleapis.com/auengine.appspot.com/$showID/$vocalTrack/${episode++}_${episodeID++}.mp4")
     }
+
+    println()
 }
