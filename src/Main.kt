@@ -1,6 +1,6 @@
-fun main() {
+fun main(args: Array<String>) {
     var episode = 1
-    
+
     print("Enter First Episode ID: ")
     var episodeID = readLine()!!.toInt()
 
