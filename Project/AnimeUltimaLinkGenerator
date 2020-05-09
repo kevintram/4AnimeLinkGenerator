@@ -1,5 +1,0 @@
-#1/bin/bash
-cd "`dirname "$0"`"
-cd src
-kotlinc Main.kt -include-runtime -d AnimeUltimaLinkGenerator.jar
-java -jar AnimeUltimaLinkGenerator.jar
