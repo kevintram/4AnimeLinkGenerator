@@ -1,7 +1,6 @@
 fun main(args: Array<String>) {
 
     println()
-
     var episode = 1
 
     print("Enter First Episode ID: ")
@@ -14,7 +13,7 @@ fun main(args: Array<String>) {
     val episodeCount = readLine()!!.toInt()
 
     print("Sub or Dub? ")
-    val vocalTrack: String = readLine()!!
+    val vocalTrack: String = readLine()!!.trim().toLowerCase()
 
     println()
 
