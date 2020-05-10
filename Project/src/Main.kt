@@ -1,3 +1,5 @@
+import java.lang.IllegalArgumentException
+
 fun main(args: Array<String>) {
 
     println()
@@ -14,6 +16,8 @@ fun main(args: Array<String>) {
 
     print("Sub or Dub?: ")
     val vocalTrack: String = readLine()!!.trim().toLowerCase()
+    if (vocalTrack != "sub" && vocalTrack != "dub")
+        throw IllegalArgumentException("Please enter sub or dub")
 
     println()
 
