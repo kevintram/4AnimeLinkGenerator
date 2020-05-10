@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
     print("Enter Number of Episodes: ")
     val episodeCount = readLine()!!.toInt()
 
-    print("Sub or Dub? ")
+    print("Sub or Dub?: ")
     val vocalTrack: String = readLine()!!.trim().toLowerCase()
 
     println()
