@@ -10,10 +10,10 @@ fun main(args: Array<String>) {
 
     var isValidUrl = false
     while (!isValidUrl) {
-        if (firstLink.contains("https://storage.googleapis.com/auengine.appspot.com") || !urlIsMp4(firstLink)) {
+        if (firstLink.contains("https://storage.googleapis.com/auengine.appspot.com") && urlIsMp4(firstLink)) {
             isValidUrl = true
         } else {
-            print("Please enter a valid url from the auengine data base: ")
+            print("ERROR: Please enter a valid url from the auengine data base: ")
             firstLink = readLine()!!
         }
     }
@@ -51,9 +51,13 @@ fun main(args: Array<String>) {
     println()
 }
 
+/**
+ * checks if a url links to a valid .mp4 file
+ * inputStream will throw a file io exception if url does not link to a valid .mp4
+ */
 fun urlIsMp4(url: String): Boolean {
     return try {
-        BufferedReader(InputStreamReader(URL(url).openConnection().getInputStream()))
+        val inputStream = URL(url).openConnection().getInputStream()
         true
     }  catch (e: Exception) {
         false
