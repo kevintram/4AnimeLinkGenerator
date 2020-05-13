@@ -1,4 +1,7 @@
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.FileWriter
 import java.net.URL
 
 
@@ -9,7 +12,8 @@ fun main(args: Array<String>) {
 
     var isValidUrl = false
     while (!isValidUrl) {
-        if (firstLink.contains("https://storage.googleapis.com/auengine.appspot.com") && urlIsMp4(firstLink)) {
+        if (firstLink.contains("storage.googleapis.com/auengine.appspot.com") && urlIsMp4(firstLink)) {
+            println()
             isValidUrl = true
         } else {
             print("ERROR: Please enter a valid url from the auengine data base: ")
@@ -24,8 +28,8 @@ fun main(args: Array<String>) {
     var episode = linkSplit[6][0].toInt() - 48
     var episodeID = linkSplit[6].substringAfter('_').substringBefore('.').toInt()
 
-    print("Enter Number of Episodes You Want To Retrieve: ")
-    val episodeCount = readLine()!!.toInt()
+    print("Enter the number of episodes you want to retrieve: ")
+    val episodeCount = readLine()!!.toIntOrNull() ?: 0
 
     println()
 
@@ -46,15 +50,18 @@ fun main(args: Array<String>) {
     val toDownload = askYesOrNo(question = "Do you want to download these episodes?")
 
     if (toDownload) {
-        print("Enter the path of the folder you want to download to: ")
-        val path = readLine()!!
+        val path = getValidPath()
         for (i in 0 until links.size) {
-            println("\nDownloading Video #${i+1}...")
+            println("Downloading Video #${i+1}...")
             downloadVideo(links[i],path)
             println("Finished Downloading Video #${i+1}!")
             println()
         }
     }
+
+    val toSaveAsTxt = askYesOrNo(question = "Do you want to save these links as a .txt file?")
+
+    if (toSaveAsTxt) saveAsTxt(links)
 
     println()
 }
@@ -69,9 +76,10 @@ fun askYesOrNo(question: String): Boolean {
     var answer = readLine()!!.toLowerCase().trim()
     while(true) {
         if (answer == "yes" || answer == "no" ) {
+            println()
             return answer == "yes"
         } else {
-            print("\nPlease answer yes or no: ")
+            print("Please enter yes or no! ")
             answer = readLine()!!.toLowerCase().trim()
         }
     }
@@ -116,3 +124,58 @@ fun downloadVideo(url: String, path: String) {
         e.printStackTrace()
     }
 }
+
+fun saveAsTxt(links: ArrayList<String>) {
+    val path = getValidPath()
+    println("What do you want the file name to be? ")
+    var name = readLine()!!
+    if (name.substring(name.length - 4) != ".txt") {
+        name += ".txt"
+    }
+    try {
+        val file = FileWriter("$path/$name")
+
+        for (link in links) {
+            if (link != links.last()) file.write("$link\n") else file.write(link)
+        }
+
+        file.close()
+
+        print("Links saved successfully!")
+    } catch (e: Exception) {
+        println("An error occurred")
+        e.printStackTrace()
+    }
+}
+//todo consolidate all the get valids into a single function
+fun getValidPath(): String {
+    print("Enter the path of the folder you want to save to: ")
+    var path = readLine()!!
+
+    while (true) {
+        if (isValidPath(path)) {
+            if (path.last() == '/') {
+                path = path.dropLast(1)
+            }
+            println()
+            return path
+        } else {
+            print("Please enter a valid path! ")
+            path = readLine()!!
+        }
+    }
+}
+
+fun isValidPath(path: String): Boolean {
+    val file = File("$path/test.txt")
+    return try {
+        file.createNewFile()
+        file.delete()
+        true
+    } catch (e: Exception) {
+        false
+    }
+}
+
+
+
