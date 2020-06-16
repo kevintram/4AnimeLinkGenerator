@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
     //get juicy info
     val showID = linkSplit[4].toInt()
     val vocalTrack = linkSplit[5]
-    var episode = linkSplit[6][0].toInt() - 48
+    var episode = linkSplit[6].substringBefore('_').toInt()
     var episodeID = linkSplit[6].substringAfter('_').substringBefore('.').toInt()
 
     println("\n----- LINKS -----")
@@ -64,6 +64,7 @@ fun main(args: Array<String>) {
 
 /**
  * Continually prompts user for an input until isValid returns true
+ * returns the user input
  */
 fun promptUntilValid(prompt: String, errorMessage: String, isValid: (String) -> Boolean): String {
     print("\n$prompt")
@@ -93,18 +94,14 @@ fun askYesOrNo(question: String): Boolean {
 
 fun getPath(): String {
     return promptUntilValid("Enter the path of the folder you want to save to: ","Please enter a valid path! ") { path ->
-        isValidPath(path)
-    }
-}
-
-fun isValidPath(path: String): Boolean {
-    val file = File("$path/test.txt")
-    return try {
-        file.createNewFile()
-        file.delete()
-        true
-    } catch (e: Exception) {
-        false
+        val file = File("$path/test.txt")
+        try {
+            file.createNewFile()
+            file.delete()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 
