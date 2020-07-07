@@ -11,9 +11,9 @@ fun main(args: Array<String>) {
         link.contains("storage.googleapis.com/auengine.appspot.com") && urlIsMp4(link)
     }
 
-    val episodeCount = promptUntilValid("Enter the number of episodes you want to retrieve: ", "Please enter a number! ") { answer ->
-        answer.toIntOrNull() != null
-    }.toInt()
+    val episodeCount = promptUntilValid("Enter the number of episodes you want to retrieve, enter all to download all episodes: ", "Please enter a number! ") { answer ->
+        answer.toIntOrNull() != null || answer.toLowerCase() == "all"
+    }.toIntOrNull() ?: Int.MAX_VALUE
 
     //split link
     val linkSplit = firstLink.split('/')
@@ -32,7 +32,6 @@ fun main(args: Array<String>) {
             links.add(link)
             println(links.last())
         } else {
-            println("Link #$i is not valid. Putting a stop to printing links.")
             break
         }
     }
@@ -121,12 +120,13 @@ fun urlIsMp4(url: String): Boolean {
  * downloads the mp4 file from the url to the given path
  */
 fun downloadVideo(url: String, path: String) {
+    val name = url.substringAfterLast('/').substringBefore('.')
+    val pathName = "$path/$name.mp4"
     try {
         //get input stream from url
         val bufferedInputStream = BufferedInputStream(URL(url).openConnection().getInputStream())
         //create file
-        val name = url.substringAfterLast('/').substringBefore('.')
-        val file = File("$path/$name.mp4")
+        val file = File(pathName)
         //write to file
         val fileOutputStream = FileOutputStream(file.path)
         var count: Int
