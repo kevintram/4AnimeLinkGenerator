@@ -1,3 +1,0 @@
-#1/bin/bash
-cd "`dirname "$0"`"/out/artifacts/AnimeUltimaLinkGenerator_jar
-java -jar AnimeUltimaLinkGenerator.jar
