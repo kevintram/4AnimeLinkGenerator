@@ -13,6 +13,3 @@ Directions for Unix OS:
 3. Find the first episode of your desired Anime on 4anime.to
 4. Click the download button to redirect you to the .mp4 file 
 5. Copy the link of the .mp4 file paste it into the program.
-
-Additionally:
-If on Unix, you can download the source code and run the executable named "4AnimeLinkGenerator" to access the program.
