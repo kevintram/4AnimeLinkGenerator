@@ -14,7 +14,6 @@ fun main(args: Array<String>) {
 
     //split link
     val linkSplit = firstLink.split('/')
-    println(linkSplit)
     //get juicy info
     val databaseVersion = linkSplit[4].substringAfter(' ')
     val showName = linkSplit[5]
