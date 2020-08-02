@@ -2,7 +2,7 @@
 Simple program for generating direct video links to 4anime's database. Can also download the videos.
 
 Directions for Non-Unix OS:
-1. Download and run the [jar](https://github.com/kevintram/4AnimeLinkGenerator/releases/download/v2/4AnimeLinkGenerator.jar) file in the latest release. If you're having trouble opening the jar file, look it up. 
+1. Download and run the [jar](https://github.com/kevintram/4AnimeLinkGenerator/releases/download/v2/4AnimeLinkGenerator.jar) file in the latest release. If you're having trouble opening the jar file, look up how to. 
 2. Find the first episode of your desired Anime on [4anime](https://4anime.to/).
 3. Click the download button to redirect you to the episode's .mp4 file.
 4. Copy the link of the .mp4 file paste it into the program.
