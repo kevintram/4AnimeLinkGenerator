@@ -115,7 +115,6 @@ fun getPath(): String {
 fun urlIsMp4(url: String): Boolean {
     // try 10 times before declaring dead link because sometimes data base will deny a request
     repeat(10) {
-        println("trying $url")
         try {
             val inputStream = URL(url).openConnection().getInputStream()
             return true
