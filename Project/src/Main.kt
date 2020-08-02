@@ -7,27 +7,31 @@ import java.net.URL
 
 fun main(args: Array<String>) {
 
-    val firstLink = promptUntilValid("Enter Link of First Episode: ","Please enter a valid url from the auengine database! ") { link ->
-        link.contains("storage.googleapis.com/auengine.appspot.com") && urlIsMp4(link)
+    val firstLink = promptUntilValid("Enter Link of First Episode: ","Please enter a valid url from the 4Anime database! " +
+            "\nIt can be found by clicking the download button of an episode.\n") { link ->
+        link.contains("storage.googleapis.com/linear-theater-254209.appspot.com/") && urlIsMp4(link)
     }
+
+    //split link
+    val linkSplit = firstLink.split('/')
+    println(linkSplit)
+    //get juicy info
+    val databaseVersion = linkSplit[4].substringAfter(' ')
+    val showName = linkSplit[5]
+    var episode = linkSplit[6].substringBeforeLast('-').substringAfterLast('-').toInt()
+    val quality = linkSplit[6].substringBeforeLast('.').substringAfterLast('-')
 
     val episodeCount = promptUntilValid("Enter the number of episodes you want to retrieve, enter all to download all episodes: ", "Please enter a number! ") { answer ->
         answer.toIntOrNull() != null || answer.toLowerCase() == "all"
     }.toIntOrNull() ?: Int.MAX_VALUE
 
-    //split link
-    val linkSplit = firstLink.split('/')
-    //get juicy info
-    val showID = linkSplit[4].toInt()
-    val vocalTrack = linkSplit[5]
-    var episode = linkSplit[6].substringBefore('_').toInt()
-    var episodeID = linkSplit[6].substringAfter('_').substringBefore('.').toInt()
-
     println("\n----- LINKS -----")
 
     val links = ArrayList<String>()
     for (i in 1..episodeCount) {
-        val link = "https://storage.googleapis.com/auengine.appspot.com/$showID/$vocalTrack/${episode++}_${episodeID++}.mp4"
+        val episodeStr = if (episode >= 10) episode.toString() else "0$episode"
+        episode++
+        val link = "https://storage.googleapis.com/linear-theater-254209.appspot.com/${databaseVersion}/${showName}/${showName}-Episode-${episodeStr}-${quality}.mp4"
         if (urlIsMp4(link)) {
             links.add(link)
             println(links.last())
@@ -109,12 +113,15 @@ fun getPath(): String {
  * val inputStream will throw a file io exception if url does not link to a valid .mp4
  */
 fun urlIsMp4(url: String): Boolean {
-    return try {
-        val inputStream = URL(url).openConnection().getInputStream()
-        true
-    }  catch (e: Exception) {
-        false
+    // try 10 times before declaring dead link because sometimes data base will deny a request
+    repeat(10) {
+        println("trying $url")
+        try {
+            val inputStream = URL(url).openConnection().getInputStream()
+            return true
+        }  catch (e: Exception) {}
     }
+    return false
 }
 /**
  * downloads the mp4 file from the url to the given path
