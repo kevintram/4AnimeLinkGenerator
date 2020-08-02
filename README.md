@@ -1,7 +1,7 @@
 # 4AnimeLinkGenerator
 Simple program for generating direct video links to 4anime's database. Can also download the videos.
 
-## Directions for Running the program:
+## Directions for running the program:
 
 #### For Non-Unix:
 - Download and run the [jar](https://github.com/kevintram/4AnimeLinkGenerator/releases/download/v2/4AnimeLinkGenerator.jar) file from the latest release.
