@@ -1,5 +1,5 @@
 # 4AnimeLinkGenerator
-Simple program for generating direct video links to 4anime's database. Can also download the videos.
+Simple program for generating direct video links from 4anime's database. Can also download the videos.
 
 ## Directions for running the program:
 
