@@ -1,7 +1,4 @@
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.FileWriter
+import java.io.*
 import java.net.URL
 
 
@@ -127,26 +124,33 @@ fun urlIsMp4(url: String): Boolean {
 fun downloadVideo(url: String, path: String) {
     val name = url.substringAfterLast('/').substringBefore('.')
     val pathName = "$path/$name.mp4"
-    try {
-        //get input stream from url
-        val bufferedInputStream = BufferedInputStream(URL(url).openConnection().getInputStream())
-        //create file
-        val file = File(pathName)
-        //write to file
-        val fileOutputStream = FileOutputStream(file.path)
-        var count: Int
-        val buffer = ByteArray(4 * 1024)
-        count = bufferedInputStream.read(buffer)
-
-        while(count != -1) {
-            fileOutputStream.write(buffer,0,count)
+    // keep on trying to download file because sometimes, 4anime database will deny request
+    while (true) {
+        try {
+            //get input stream from url
+            val bufferedInputStream = BufferedInputStream(URL(url).openConnection().getInputStream())
+            //create file
+            val file = File(pathName)
+            //write to file
+            val fileOutputStream = FileOutputStream(file.path)
+            var count: Int
+            val buffer = ByteArray(4 * 1024)
             count = bufferedInputStream.read(buffer)
+
+            while(count != -1) {
+                fileOutputStream.write(buffer,0,count)
+                count = bufferedInputStream.read(buffer)
+            }
+            //save file
+            file.createNewFile()
+            return
+        } catch (e: IOException) {
+
+        } catch (e: Exception) {
+            println("An error occurred")
+            e.printStackTrace()
+            return
         }
-        //save file
-        file.createNewFile()
-    }  catch (e: Exception) {
-        println("An error occurred")
-        e.printStackTrace()
     }
 }
 
