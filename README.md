@@ -13,5 +13,5 @@ Simple program for generating direct video links from 4anime's database. Can als
 
 ### Directions for getting the link to an episode:
 1. Find the episode of your desired Anime on [4anime](https://4anime.to/).
-2. Click the download button to redirect you to the episode's .mp4 file.
+2. Click the download button located below the video player to redirect you to the episode's .mp4 file.
 3. Copy the link of the .mp4 file and paste it into the program.
