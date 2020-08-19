@@ -6,12 +6,13 @@ fun main(args: Array<String>) {
 
     val firstLink = promptUntilValid("Enter Link of First Episode: ","Please enter a valid url from the 4Anime database! " +
             "\nIt can be found by clicking the download button of an episode.\n") { link ->
-        link.contains("storage.googleapis.com/linear-theater-254209.appspot.com/") && urlIsMp4(link)
+        link.contains("storage.googleapis.com/") && urlIsMp4(link)
     }
 
     //split link
     val linkSplit = firstLink.split('/')
     //get juicy info
+    val appSpotVersion = linkSplit[3]
     val databaseVersion = linkSplit[4].substringAfter(' ')
     val showName = linkSplit[5]
     var episode = linkSplit[6].substringBeforeLast('-').substringAfterLast('-').toInt()
@@ -27,7 +28,7 @@ fun main(args: Array<String>) {
     for (i in 1..episodeCount) {
         val episodeStr = if (episode >= 10) episode.toString() else "0$episode"
         episode++
-        val link = "https://storage.googleapis.com/linear-theater-254209.appspot.com/${databaseVersion}/${showName}/${showName}-Episode-${episodeStr}-${quality}.mp4"
+        val link = "https://storage.googleapis.com/${appSpotVersion}/${databaseVersion}/${showName}/${showName}-Episode-${episodeStr}-${quality}.mp4"
         if (urlIsMp4(link)) {
             links.add(link)
             println(links.last())
