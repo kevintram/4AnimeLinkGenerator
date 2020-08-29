@@ -1,37 +1,32 @@
 import java.io.*
 import java.net.URL
+import java.util.*
 
 
 fun main(args: Array<String>) {
-
-    val firstLink = promptUntilValid("Enter Link of First Episode: ","Please enter a valid url from the 4Anime database! " +
-            "\nIt can be found by clicking the download button of an episode.\n") { link ->
-        link.contains("storage.googleapis.com/") && urlIsMp4(link)
+    val firstLink = promptUntilValid("Enter the link from 4anime of the first episode you want to download: ",
+            "Please enter a valid link of an episode from 4Anime!\n" ) { link ->
+        link.contains("4anime.to") && link.contains("episode")
     }
 
-    //split link
-    val linkSplit = firstLink.split('/')
-    //get juicy info
-    val appSpotVersion = linkSplit[3]
-    val databaseVersion = linkSplit[4].substringAfter(' ')
-    val showName = linkSplit[5]
-    var episode = linkSplit[6].substringBeforeLast('-').substringAfterLast('-').toInt()
-    val quality = linkSplit[6].substringBeforeLast('.').substringAfterLast('-')
-
-    val episodeCount = promptUntilValid("Enter the number of episodes you want to retrieve, enter all to download all episodes: ", "Please enter a number! ") { answer ->
+    val episodeCount = promptUntilValid("Enter the number of episodes you want to retrieve. Enter \"all\" to download all episodes: ",
+            "Please enter a number! ") { answer ->
         answer.toIntOrNull() != null || answer.toLowerCase() == "all"
     }.toIntOrNull() ?: Int.MAX_VALUE
 
     println("\n----- LINKS -----")
 
-    val links = ArrayList<String>()
+    val sourceLinks = mutableListOf<String>()
+    val showTitle = firstLink.substringAfterLast("/").substringBefore("-episode")
+    var episode = firstLink.substringAfter("episode-").substringBefore("?").toInt()
     for (i in 1..episodeCount) {
         val episodeStr = if (episode >= 10) episode.toString() else "0$episode"
         episode++
-        val link = "https://storage.googleapis.com/${appSpotVersion}/${databaseVersion}/${showName}/${showName}-Episode-${episodeStr}-${quality}.mp4"
-        if (urlIsMp4(link)) {
-            links.add(link)
-            println(links.last())
+        val episodeLink = "https://4anime.to/${showTitle}-episode-${episodeStr}"
+        if (linkIsValid(episodeLink)) {
+            val source = getVideoSource(episodeLink)
+            println(source)
+            sourceLinks.add(source)
         } else {
             break
         }
@@ -40,26 +35,15 @@ fun main(args: Array<String>) {
     val toDownload = askYesOrNo(question = "Do you want to download these episodes?")
 
     if (toDownload) {
-        val path = getPath()
+        val path = getPathFromUser()
         println()
-        for (i in 0 until links.size) {
+        for (i in 0 until sourceLinks.size) {
             println("Downloading Video #${i+1}...")
-            downloadVideo(links[i],path)
+            downloadVideo(sourceLinks[i],path)
             println("Finished Downloading Video #${i+1}!")
             println()
         }
     }
-
-    val toSaveAsTxt = askYesOrNo(question = "Do you want to save these links as a .txt file?")
-
-    if (toSaveAsTxt) {
-        val path = getPath()
-        println("\nWhat do you want the file name to be? ")
-        val name = readLine()!!
-        saveAsTxt(name,path,links)
-    }
-
-    println()
 }
 
 /**
@@ -92,7 +76,7 @@ fun askYesOrNo(question: String): Boolean {
     return answer == "yes"
 }
 
-fun getPath(): String {
+fun getPathFromUser(): String {
     return promptUntilValid("Enter the path of the folder you want to save to: ","Please enter a valid path! ") { path ->
         val file = File("$path/test.txt")
         try {
@@ -105,72 +89,84 @@ fun getPath(): String {
     }
 }
 
-/**
- * checks if a url links to a valid .mp4 file
- * val inputStream will throw a file io exception if url does not link to a valid .mp4
- */
-fun urlIsMp4(url: String): Boolean {
-    // try 10 times before declaring dead link because sometimes data base will deny a request
-    repeat(10) {
-        try {
-            val inputStream = URL(url).openConnection().getInputStream()
-            return true
-        }  catch (e: Exception) {}
-    }
+fun linkIsValid(link: String): Boolean {
+    try {
+        val inputStream = URL(link).openConnection().getInputStream()
+        return true
+    }  catch (e: Exception) {}
     return false
 }
+
+/**
+ * Gets the source of the video of the page
+ */
+fun getVideoSource(link: String): String {
+    var html = ""
+    try {
+        val connection = URL(link).openConnection()
+        val scanner = Scanner(connection.getInputStream())
+        scanner.useDelimiter("\\Z")
+        html = scanner.next()
+        scanner.close()
+    } catch (e: Exception) {
+        println("An error occurred")
+        e.printStackTrace()
+    }
+    var source = ""
+    for (line in html.split("\n")) {
+        if (line.contains("<source")) {
+            source = line.substringAfter("\"").substringBefore("\"")
+        }
+    }
+    if (!source.contains("google")) { //if source is not a direct link to google cloud storage
+        val baseLink = source.substringBefore("?").substringAfter("https://")
+        // first try linear theater app spot
+        val linearTheaterLink = "https://storage.googleapis.com/linear-theater-254209.appspot.com/${baseLink}"
+        if (linkIsValid(linearTheaterLink)) {
+            return linearTheaterLink
+        }
+        // next try justawesome app spot
+        val justAwesomeLink = "https://storage.googleapis.com/justawesome-183319.appspot.com/${baseLink}"
+        if (linkIsValid(justAwesomeLink)) {
+            return linearTheaterLink
+        }
+        // if neither doesn't work then uh oh
+        throw Exception("Uh oh can't find the appspot for this show. Please open an issue on github.")
+    }
+    return source
+}
+
 /**
  * downloads the mp4 file from the url to the given path
  */
 fun downloadVideo(url: String, path: String) {
     val name = url.substringAfterLast('/').substringBefore('.')
     val pathName = "$path/$name.mp4"
-    // keep on trying to download file because sometimes, 4anime database will deny request
-    while (true) {
-        try {
-            //get input stream from url
-            val bufferedInputStream = BufferedInputStream(URL(url).openConnection().getInputStream())
-            //create file
-            val file = File(pathName)
-            //write to file
-            val fileOutputStream = FileOutputStream(file.path)
-            var count: Int
-            val buffer = ByteArray(4 * 1024)
-            count = bufferedInputStream.read(buffer)
-
-            while(count != -1) {
-                fileOutputStream.write(buffer,0,count)
-                count = bufferedInputStream.read(buffer)
-            }
-            //save file
-            file.createNewFile()
-            return
-        } catch (e: IOException) {
-
-        } catch (e: Exception) {
-            println("An error occurred")
-            e.printStackTrace()
-            return
-        }
-    }
-}
-
-/**
- * saves the links in a .txt file at the given path with the given name
- */
-fun saveAsTxt(name: String, path: String, links: ArrayList<String>) {
     try {
-        val file = FileWriter("$path/$name")
+        //get input stream from url
+        val bufferedInputStream = BufferedInputStream(URL(url).openConnection().getInputStream())
+        //create file
+        val file = File(pathName)
+        //write to file
+        val fileOutputStream = FileOutputStream(file.path)
+        var count: Int
+        val buffer = ByteArray(4 * 1024)
+        count = bufferedInputStream.read(buffer)
 
-        for (link in links) {
-            if (link != links.last()) file.write("$link\n") else file.write(link)
+        while(count != -1) {
+            fileOutputStream.write(buffer,0,count)
+            count = bufferedInputStream.read(buffer)
         }
-
-        file.close()
-
-        print("Links saved successfully!")
+        //save file
+        file.createNewFile()
+        return
+    } catch (e: IOException) {
+        println("An error occurred")
+        e.printStackTrace()
+        return
     } catch (e: Exception) {
         println("An error occurred")
         e.printStackTrace()
+        return
     }
 }
