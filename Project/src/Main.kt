@@ -128,7 +128,7 @@ fun getVideoSource(link: String): String {
         // next try justawesome app spot
         val justAwesomeLink = "https://storage.googleapis.com/justawesome-183319.appspot.com/${baseLink}"
         if (linkIsValid(justAwesomeLink)) {
-            return linearTheaterLink
+            return justAwesomeLink
         }
         // if neither doesn't work then uh oh
         throw Exception("Uh oh can't find the appspot for this show. Please open an issue on github.")
